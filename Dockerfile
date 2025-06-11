@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN bun install
 
 # install openssl
 RUN apk update && apk upgrade
@@ -26,4 +26,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the application
-CMD [ "npm", "start" ] 
+CMD [ "bun", "dev" ] 
