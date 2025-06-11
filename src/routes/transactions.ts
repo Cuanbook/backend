@@ -47,6 +47,7 @@ transactions.get('/', async (c) => {
     });
 
     const summary = transactions.reduce(
+      // @ts-ignore
       (acc, curr) => {
         acc[curr.type] = (acc[curr.type] || 0) + curr.amount;
         return acc;
