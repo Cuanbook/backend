@@ -26,6 +26,7 @@
     "verbatimModuleSyntax": false,
     "skipLibCheck": true,
     "types": [
+      "jest",
       "node"
     ],
     "jsx": "react-jsx",
