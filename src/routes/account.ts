@@ -73,10 +73,27 @@ account.put('/', zValidator('json', profileSchema), async (c) => {
 account.delete('/', async (c) => {
   try {
     const { userId } = c.get('user');
-    await prisma.user.delete({ where: { id: userId } });
+    
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return c.json({ status: 'error', message: 'User not found', code: 404 }, 404);
+    }
+
+    await prisma.$transaction([
+      prisma.transaction.deleteMany({ where: { userId } }),
+      prisma.category.deleteMany({ where: { userId } }),
+      prisma.monthlyReport.deleteMany({ where: { userId } }),
+      prisma.user.delete({ where: { id: userId } })
+    ]);
+
     return c.json({ status: 'success', message: 'Akun berhasil dihapus' });
   } catch (error) {
-    return c.json({ status: 'error', message: 'Server error', code: 500 }, 500);
+    console.error('Delete account error:', error);
+    return c.json({ 
+      status: 'error', 
+      message: 'Gagal menghapus akun, silakan coba lagi', 
+      code: 500 
+    }, 500);
   }
 });
 
