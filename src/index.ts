@@ -9,6 +9,7 @@ import openapi from './routes/openapi'
 import swaggerui from './routes/swaggerui'
 import { logger } from 'hono/logger'
 import mock from './routes/mock'
+import account from './routes/account'
 
 const app = new Hono()
 
@@ -29,6 +30,7 @@ app.route('/api/reports', reports)
 app.route('/openapi.json', openapi)
 app.route('/docs', swaggerui)
 app.route('/api/mock', mock)
+app.route('/api/account', account)
 
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok' }))
