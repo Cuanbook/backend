@@ -9,7 +9,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN bun install
+RUN npm install
+
+# check tsc
+RUN tsc --version
+
+# if tsc is not found, install it
+RUN if ! command -v tsc &> /dev/null; then npm install -g typescript; fi
 
 # install openssl
 RUN apk update && apk upgrade
@@ -25,5 +31,8 @@ COPY . .
 # Expose port
 EXPOSE 3000
 
+# Build the application
+CMD [ "npm", "build" ] 
+
 # Start the application
-CMD [ "bun", "dev" ] 
+CMD [ "npm", "start" ] 
