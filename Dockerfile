@@ -11,12 +11,6 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# check tsc
-RUN tsc --version
-
-# if tsc is not found, install it
-RUN if ! command -v tsc &> /dev/null; then npm install -g typescript; fi
-
 # install openssl
 RUN apk update && apk upgrade
 RUN apk add --no-cache openssl
