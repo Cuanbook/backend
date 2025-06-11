@@ -46,27 +46,55 @@ account.put('/', zValidator('json', profileSchema), async (c) => {
   try {
     const { userId } = c.get('user');
     const data = c.req.valid('json');
-    if (data.email) {
-      const existing = await prisma.user.findUnique({ where: { email: data.email } });
-      if (existing && existing.id !== userId) {
-        return c.json({ status: 'error', message: 'Email sudah terdaftar', code: 400 }, 400);
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return c.json({ status: 'error', message: 'User not found', code: 404 }, 404);
+    }
+
+    if (data.email && data.email !== user.email) {
+      const existingUser = await prisma.user.findUnique({ 
+        where: { 
+          email: data.email,
+          NOT: { id: userId }
+        } 
+      });
+      if (existingUser) {
+        return c.json({ 
+          status: 'error', 
+          message: 'Email sudah terdaftar', 
+          code: 400 
+        }, 400);
       }
     }
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data,
+      data: {
+        name: data.name !== undefined ? data.name : undefined,
+        email: data.email !== undefined ? data.email : undefined,
+        businessName: data.businessName !== undefined ? data.businessName : undefined,
+        businessOwner: data.businessOwner !== undefined ? data.businessOwner : undefined,
+        phoneNumber: data.phoneNumber !== undefined ? data.phoneNumber : undefined
+      },
       select: {
         id: true,
         email: true,
         name: true,
         businessName: true,
         businessOwner: true,
-        phoneNumber: true,
-      },
+        phoneNumber: true
+      }
     });
+
     return c.json(updatedUser);
   } catch (error) {
-    return c.json({ status: 'error', message: 'Server error', code: 500 }, 500);
+    console.error('Update profile error:', error);
+    return c.json({ 
+      status: 'error', 
+      message: 'Gagal mengupdate profil, silakan coba lagi', 
+      code: 500 
+    }, 500);
   }
 });
 
