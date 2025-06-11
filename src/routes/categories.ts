@@ -29,6 +29,30 @@ categories.get('/', async (c) => {
     const { userId } = c.get('user');
     const type = c.req.query('type') as 'INCOME' | 'EXPENSE' | undefined;
 
+    const existingCategories = await prisma.category.findMany({
+      where: { userId },
+      select: { id: true }
+    });
+
+    if (existingCategories.length === 0) {
+      const createCategories = [
+        ...defaultIncomeCategories.map(name => ({
+          name,
+          type: 'INCOME',
+          userId
+        })),
+        ...defaultExpenseCategories.map(name => ({
+          name,
+          type: 'EXPENSE',
+          userId
+        }))
+      ];
+
+      await prisma.category.createMany({
+        data: createCategories
+      });
+    }
+
     const where: any = { userId };
     if (type) where.type = type;
 
@@ -57,7 +81,12 @@ categories.get('/', async (c) => {
       summary,
     });
   } catch (error) {
-    return c.json({ status: 'error', message: 'Server error', code: 500 }, 500);
+    console.error('Get categories error:', error);
+    return c.json({ 
+      status: 'error', 
+      message: 'Gagal mengambil kategori', 
+      code: 500 
+    }, 500);
   }
 });
 
