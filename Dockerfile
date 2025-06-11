@@ -4,29 +4,24 @@ FROM node:18-alpine
 # Create app directory
 WORKDIR /app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# Install dependencies first (caching)
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# install openssl
-RUN apk update && apk upgrade
-RUN apk add --no-cache openssl
+# Copy prisma schema
+COPY prisma ./prisma/
 
 # Generate Prisma Client
-COPY prisma ./prisma/
 RUN npx prisma generate
 
-# Bundle app source
+# Copy rest of the application
 COPY . .
+
+# Build TypeScript
+RUN npm run build
 
 # Expose port
 EXPOSE 3000
-
-# Build the application
-CMD [ "npm", "build" ] 
 
 # Start the application
 CMD [ "npm", "start" ] 
