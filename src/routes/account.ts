@@ -70,7 +70,7 @@ account.put('/', zValidator('json', profileSchema), async (c) => {
   }
 });
 
-account.delete('/delete', async (c) => {
+account.delete('/', async (c) => {
   try {
     const { userId } = c.get('user');
     await prisma.user.delete({ where: { id: userId } });
